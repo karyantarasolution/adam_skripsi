@@ -24,19 +24,25 @@ class DashboardController extends Controller
         return view('dashboard.super_admin', $data);
     }
 
-    public function adminUnit()
-    {
-        $unit = UnitBankSampah::where('admin_id', Auth::id())->first();
-        
-        $data = [
-            'nama_unit'     => $unit->nama_unit,
-            'nasabah_unit'  => Nasabah::where('unit_id', $unit->id)->count(),
-            'berat_unit'    => SetoranSampah::where('unit_id', $unit->id)->sum('berat'),
-            'saldo_keluar'  => PenarikanSaldo::where('unit_id', $unit->id)->sum('jumlah_tarik'),
-            'setoran_last'  => SetoranSampah::where('unit_id', $unit->id)->with('nasabah.user')->latest()->take(5)->get(),
-        ];
-        return view('dashboard.admin_unit', $data);
+public function adminUnit()
+{
+    $unit = UnitBankSampah::where('admin_id', Auth::id())->first();
+    
+    // JAGA-JAGA: Kalau admin ini belum ditugaskan di unit mana pun
+    if (!$unit) {
+        return "Akses Ditolak: Akun Anda belum ditugaskan di unit bank sampah mana pun. Silakan hubungi Super Admin DLH.";
     }
+
+    $data = [
+        'nama_unit'     => $unit->nama_unit,
+        'nasabah_unit'  => Nasabah::where('unit_id', $unit->id)->count(),
+        'berat_unit'    => SetoranSampah::where('unit_id', $unit->id)->sum('berat'),
+        'saldo_keluar'  => PenarikanSaldo::where('unit_id', $unit->id)->sum('jumlah_tarik'),
+        'setoran_last'  => SetoranSampah::where('unit_id', $unit->id)->with('nasabah.user')->latest()->take(5)->get(),
+    ];
+    
+    return view('dashboard.admin_unit', $data);
+}
 
 public function nasabah()
 {
