@@ -12,10 +12,9 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
-// PENGATUR LALU LINTAS UTAMA
 Route::get('/dashboard', function () {
     $role = Auth::user()->role;
     if ($role === 'super_admin') {
@@ -27,7 +26,6 @@ Route::get('/dashboard', function () {
     }
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-// RUTE PROFILE (Global Auth)
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -37,7 +35,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'role:nasabah'])->group(function () {
     Route::get('/nasabah/dashboard', [DashboardController::class, 'nasabah'])->name('nasabah.dashboard');
 });
-// KELOMPOK 1: SUPER ADMIN
+
 Route::middleware(['auth', 'role:super_admin'])->group(function () {
     Route::get('/super-admin/dashboard', [DashboardController::class, 'superAdmin'])->name('super_admin.dashboard');
     Route::resource('kategori-sampah', KategoriSampahController::class);
@@ -47,7 +45,6 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
     Route::get('/cetak-peringkat-kinerja', [LaporanController::class, 'cetakPeringkatKinerja'])->name('cetak.peringkat');
 });
 
-// KELOMPOK 2: ADMIN UNIT
 Route::middleware(['auth', 'role:admin_unit'])->group(function () {
     Route::get('/admin-unit/dashboard', [DashboardController::class, 'adminUnit'])->name('admin_unit.dashboard');
     Route::resource('nasabah', NasabahController::class);
@@ -55,10 +52,9 @@ Route::middleware(['auth', 'role:admin_unit'])->group(function () {
     Route::resource('penarikan-saldo', PenarikanSaldoController::class)->except(['edit', 'update']);
     Route::get('/cetak-arus-kas', [LaporanController::class, 'cetakArusKas'])->name('cetak.arus_kas');
     Route::get('/cetak-nasabah-unit', [LaporanController::class, 'cetakNasabahUnit'])->name('cetak.nasabah_unit');
-Route::get('/cetak-buku-tabungan/{id}', [LaporanController::class, 'cetakBukuTabungan'])->name('cetak.buku_tabungan');
-Route::get('/cetak-penarikan', [LaporanController::class, 'cetakPenarikan'])->name('cetak.penarikan');
-Route::get('/cetak-rekap-setoran', [LaporanController::class, 'cetakRekapSetoran'])->name('cetak.rekap_setoran');
+    Route::get('/cetak-buku-tabungan/{id}', [LaporanController::class, 'cetakBukuTabungan'])->name('cetak.buku_tabungan');
+    Route::get('/cetak-penarikan', [LaporanController::class, 'cetakPenarikan'])->name('cetak.penarikan');
+    Route::get('/cetak-rekap-setoran', [LaporanController::class, 'cetakRekapSetoran'])->name('cetak.rekap_setoran');
 });
-
 
 require __DIR__.'/auth.php';
